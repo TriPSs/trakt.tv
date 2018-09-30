@@ -6,7 +6,6 @@ const redirectUrn = 'urn:ietf:wg:oauth:2.0:oob';
 
 // requirejs modules
 const got = require('got');
-const crypto = require('crypto');
 const methods = require('./methods.json');
 const sanitizer = require('sanitizer').sanitize;
 
@@ -268,7 +267,7 @@ module.exports = class Trakt {
 
     // Get authentication url for browsers
     get_url() {
-        this._authentication.state = crypto.randomBytes(6).toString('hex');
+        this._authentication.state = this._generateState();
         // Replace 'api' from the api_url to get the top level trakt domain
         const base_url = this._settings.endpoint.replace('api.', '').replace('api-', '');
         return base_url + '/oauth/authorize?response_type=code&client_id=' + this._settings.client_id + '&redirect_uri=' + this._settings.redirect_uri + '&state=' + this._authentication.state;
@@ -374,5 +373,15 @@ module.exports = class Trakt {
             this._revoke();
             this._authentication = {};
         }
+    }
+
+    _generateState() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < 6; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
     }
 };
